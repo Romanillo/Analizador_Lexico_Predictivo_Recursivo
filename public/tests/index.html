@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mocha</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+    <link rel="stylesheet" href="..\views/styles.scss" />																						<!-- Mocha -->
+		
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	
+  </head>
+  
+  <body>
+	<h1 id="titulo">Analizador Lexico Predictivo Recursivo</h1>
+	<div id="result">
+    <div id="mocha"></div>
+	</div>
+	<script src="chai.js"></script>
+    <script src="mocha.js"></script>
+	
+	<script src="../main.js"></script>
+	<script src="../tokens.js"></script>
+	<script src="../parse.js"></script>
+	
+    <script>mocha.setup('tdd')</script>
+    <script src="tests.js"></script>
+    <script>
+      mocha.run();
+    </script>
+	<div style="margin:auto; width:60%;">
+	  <p>
+		<nav>
+		<div>
+			  <a href="https://github.com/Romanillo/Analizador_Lexico_Predictivo_Recursivo" class="btn" >GitHub</a>	
+		</div>
+		</nav>
+	  </p>		
+	</div>
+
+  </body>
+</html>
