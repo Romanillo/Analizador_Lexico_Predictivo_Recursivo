@@ -1,2 +1,10 @@
-a = 4*2;
-p a
+var n, f;
+begin
+   n = 0;
+   f = 1;
+   while n # 16 do
+   begin
+      n = n + 1;
+      f = f * n;
+   end;
+end.
