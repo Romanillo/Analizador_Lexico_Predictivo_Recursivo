@@ -40,9 +40,9 @@ String::tokens = ->
   MULTIPLELINECOMMENT = /\/[*](.|\n)*?[*]\//g
   ONECHAROPERATORS = /([=()&|;:,<>\.{}[\]])/g
   tokens = [
-	COMPARISON
-	ADDSUBOP
-	MULTDIVOP
+    COMPARISON
+    ADDSUBOP
+    MULTDIVOP
     WHITES
     ID
     NUM
@@ -117,11 +117,11 @@ String::tokens = ->
     # MULTDIVOP
     else if m = MULTDIVOP.bexec(this)
       result.push make("MULTDIVOP", getTok())
-	
+  
     # COMPARISON
     else if m = COMPARISON.bexec(this)
       result.push make("COMPARISON", getTok())
-	
+  
     # STRING
     else if m = STRING.bexec(this)
       result.push make("STRING", getTok().replace(/^["']|["']$/g, ""))
@@ -146,7 +146,7 @@ parse = (input) ->
             input.substr(lookahead.from) + "'"
     return
 
-	
+  
   program = ->
     result = block()
     if lookahead and lookahead.type is "."
@@ -154,7 +154,7 @@ parse = (input) ->
     else
       throw "Syntax Error. Expected '.' Remember to end your input with a ."
     result
-	
+  
   block = ->
     resultarr = []
     if lookahead and lookahead.type is "CONST"
@@ -201,16 +201,16 @@ parse = (input) ->
         else # Error!
           throw "Syntax Error. Expected ID but found " + (if lookahead then lookahead.value else "end of input") + " near '#{input.substr(lookahead.from)}'"
         result
-		
+    
       resultarr.push variable()
       while lookahead and lookahead.type is ","
         match ","
         resultarr.push variable()
       match ";"
-	  
+    
     proced = ->
       result = null
-      match "procedure"
+      match "PROCEDURE"
       if lookahead and lookahead.type is "ID"
         value = lookahead.value
         match "ID"
@@ -223,12 +223,12 @@ parse = (input) ->
       else # Error!
         throw "Syntax Error. Expected ID but found " + (if lookahead then lookahead.value else "end of input") + " near '#{input.substr(lookahead.from)}'"
       result
-    while lookahead and lookahead.type is "procedure"
+    while lookahead and lookahead.type is "PROCEDURE"
       resultarr.push proced()
     resultarr.push statement()
-	   
+     
     resultarr
-	
+  
   statements = ->
     result = [statement()]
     while lookahead and lookahead.type is ";"
@@ -261,7 +261,7 @@ parse = (input) ->
       result = [statement()]
       while lookahead and lookahead.type is ";"
         match ";"
-       	result.push statement()
+        result.push statement()
         match "END"
     else if lookahead and lookahead.type is "WHILE"
       match "WHILE"
@@ -290,7 +290,7 @@ parse = (input) ->
     else # Error!
       throw "Syntax Error. Expected identifier but found " + (if lookahead then lookahead.value else "end of input") + " near '#{input.substr(lookahead.from)}'"
     result
-	
+  
   condition = ->
     if lookahead and lookahead.type is "COMPARISON"
       left = expression()
@@ -300,7 +300,7 @@ parse = (input) ->
       result =
         type: type
         left: left
-      	right: right
+        right: right
     result
 
   expression = ->
@@ -334,18 +334,18 @@ parse = (input) ->
         type: "NUM"
         value: lookahead.value
       match "NUM"
-	  
+    
     else if lookahead.type is "ID"
       result =
         type: "ID"
         value: lookahead.value
       match "ID"
-	  
+    
     else if lookahead.type is "("
       match "("
       result = expression()
       match ")"
-	  
+    
     else # Throw exception
       throw "Syntax Error. Expected number or identifier or '(' but found " + (if lookahead then lookahead.value else "end of input") + " near '" + input.substr(lookahead.from) + "'"
     result
