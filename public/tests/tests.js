@@ -1,6 +1,6 @@
 var assert = chai.assert;
 
-suite('Pruebas', function() {
+suite('Tokens', function() {
     test('Asignacion y Suma: ', function() {
 		 original.value =  "d = 4 + 6";
 		 var esperado = '[\n  {\n    "type": "=",\n    "left": {\n      "type": "ID",\n      "value": "d"\n    },\n    "right": {\n      "type": "+",\n      "left": {\n        "type": "NUM",\n        "value": 4\n      },\n      "right": {\n        "type": "NUM",\n        "value": 6\n      }\n    }\n  }\n]';
@@ -23,6 +23,7 @@ suite('Pruebas', function() {
 		 var esperado = '[\n  {\n    "type": "WHILE",\n    "left": {\n      "type": "&lt;",\n      "left": {\n        "type": "ID",\n        "value": "d"\n      },\n      "right": {\n        "type": "NUM",\n        "value": 20\n      }\n    },\n    "right": {\n      "type": "+",\n      "left": {\n        "type": "ID",\n        "value": "d"\n      },\n      "right": {\n        "type": "NUM",\n        "value": 1\n      }\n    }\n  }\n]';
 		 main ();
        assert.deepEqual(OUTPUT.innerHTML, esperado);
+	});
 	 test('Error: ', function() {
 		 original.value =  "(e = ;10";
 		 main ();
