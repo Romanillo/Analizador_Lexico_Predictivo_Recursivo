@@ -1,4 +1,4 @@
-var main, parse;
+var main, parse,OUTPUT;
 
 main = function() {
   var result, source;
