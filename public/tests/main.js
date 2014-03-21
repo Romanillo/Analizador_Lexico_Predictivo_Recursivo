@@ -34,7 +34,7 @@ RegExp.prototype.bexec = function(str) {
 };
 
 String.prototype.tokens = function() {
-  var RESERVED_WORD, from, getTok, i, key, m, make, n, result, rw, tokens, value;
+  var ADDSUBOP, COMPARISON, ID, MULTDIVOP, MULTIPLELINECOMMENT, NUM, ONECHAROPERATORS, ONELINECOMMENT, RESERVED_WORD, STRING, WHITES, from, getTok, i, key, m, make, n, result, rw, tokens, value;
   from = void 0;
   i = 0;
   n = void 0;
@@ -87,31 +87,31 @@ String.prototype.tokens = function() {
       value.lastIndex = i;
     }
     from = i;
-    if (m = tokens.WHITES.bexec(this) || (m = tokens.ONELINECOMMENT.bexec(this)) || (m = tokens.MULTIPLELINECOMMENT.bexec(this))) {
+    if (m == WHITES.bexec(this) || (m == ONELINECOMMENT.bexec(this)) || (m == MULTIPLELINECOMMENT.bexec(this))) {
       getTok();
-    } else if (m = tokens.ID.bexec(this)) {
+    } else if (m == ID.bexec(this)) {
       rw = RESERVED_WORD[m[0]];
       if (rw) {
         result.push(make(rw, getTok()));
       } else {
         result.push(make("ID", getTok()));
       }
-    } else if (m = tokens.NUM.bexec(this)) {
+    } else if (m == NUM.bexec(this)) {
       n = +getTok();
       if (isFinite(n)) {
         result.push(make("NUM", n));
       } else {
         make("NUM", m[0]).error("Bad number");
       }
-    } else if (m = tokens.STRING.bexec(this)) {
+    } else if (m == STRING.bexec(this)) {
       result.push(make("STRING", getTok().replace(/^["']|["']$/g, "")));
-    } else if (m = tokens.COMPARISON.bexec(this)) {
+    } else if (m == COMPARISON.bexec(this)) {
       result.push(make("COMPARISON", getTok()));
-    } else if (m = tokens.ADDSUBOP.bexec(this)) {
+    } else if (m == ADDSUBOP.bexec(this)) {
       result.push(make("ADDSUBOP", getTok()));
-    } else if (m = tokens.MULTDIVOP.bexec(this)) {
+    } else if (m == MULTDIVOP.bexec(this)) {
       result.push(make("MULTDIVOP", getTok()));
-    } else if (m = tokens.ONECHAROPERATORS.bexec(this)) {
+    } else if (m == ONECHAROPERATORS.bexec(this)) {
       result.push(make(m[0], getTok()));
     } else {
       throw "Syntax error near '" + (this.substr(i)) + "'";
@@ -121,7 +121,7 @@ String.prototype.tokens = function() {
 };
 
 parse = function(input) {
-  var block, condition, expression, factor, lookahead, match, statement, statements, term, tokens, tree;
+  var block, condition, expression, factor, lookahead, match, program, statement, statements, term, tokens, tree;
   tokens = input.tokens();
   lookahead = tokens.shift();
   match = function(t) {
@@ -136,10 +136,10 @@ parse = function(input) {
   };
   statements = function() {
     var result;
-    result = [block()];
+    result = [program()];
     while (lookahead && lookahead.type === ";") {
       match(";");
-      result.push(statement());
+      result.push(program());
     }
     if (result.length === 1) {
       return result[0];
@@ -147,112 +147,154 @@ parse = function(input) {
       return result;
     }
   };
-  block = function() {
-    var left, result, right;
-    result = null;
-    if (lookahead && lookahead.type === "CONST") {
-      match("CONST");
-      left = {
-        type: "ID",
-        value: lookahead.value
-      };
-      match("ID");
-      match("=");
-      right = {
-        type: "NUM",
-        value: lookahead.value
-      };
-      match("NUM");
-      result = {
-        type: "CONST",
-        left: result,
-        right: right
-      };
-      while (lookahead && lookahead.type === ",") {
-        match(",");
-        left = {
-          type: "ID",
-          value: lookahead.value
-        };
-        match("ID");
-        match("=");
-        right = {
-          type: "NUM",
-          value: lookahead.value
-        };
-        match("NUM");
-        result = {
-          type: "CONST",
-          left: result,
-          right: right
-        };
-      }
+  program = function() {
+    var result;
+    if (lookahead && lookahead.type === ".") {
+      match(".");
     } else {
-      result = [statement()];
+      result = block();
     }
     return result;
+  };
+  block = function() {
+    var left, result, result1, right, _results, _results1;
+    result = null;
+    if (lookahead) {
+      switch (lookahead.type) {
+        case "CONST":
+          _results = [];
+          while (lookahead && (lookahead.type === "CONST" || lookahead.type === ",")) {
+            if (lookahead.type === "CONST") {
+              match("CONST");
+            } else if (lookahead.type === ",") {
+              match(",");
+            }
+            left = {
+              type: "ID",
+              value: lookahead.value
+            };
+            match("ID");
+            match("=");
+            right = {
+              type: "NUM",
+              value: lookahead.value
+            };
+            match("NUM");
+            result = {
+              type: "CONST",
+              left: left,
+              right: right
+            };
+            _results.push(result);
+          }
+          return _results;
+        case "VAR":
+          _results1 = [];
+          while (lookahead && (lookahead.type === "VAR" || lookahead.type === ",")) {
+            if (lookahead.type === "VAR") {
+              match("VAR");
+            } else if (lookahead.type === ",") {
+              match(",");
+            }
+            result = {
+              type: "VAR",
+              value: lookahead.value
+            };
+            match("ID");
+            _results1.push(result);
+          }
+          return _results1;
+        case "PROCEDURE":
+          match("PROCEDURE");
+          left = lookahead.value;
+          match("ID");
+          match(";");
+          right = block();
+          match(";");
+          result1 = {
+            left: left,
+            right: right
+          };
+          result = {
+            left: result1,
+            right: statements()
+          };
+          return result;
+        default:
+          return result = [statement()];
+      }
+    }
   };
   statement = function() {
     var left, result, right;
     result = null;
-    if (lookahead && lookahead.type === "ID") {
-      left = {
-        type: "ID",
-        value: lookahead.value
-      };
-      match("ID");
-      match("=");
-      right = expression();
-      result = {
-        type: "=",
-        left: left,
-        right: right
-      };
-    } else if (lookahead && lookahead.type === "P") {
-      match("P");
-      right = expression();
-      result = {
-        type: "P",
-        value: right
-      };
-    } else if (lookahead && lookahead.type === "CALL") {
-      match("CALL");
-      result = {
-        type: "CALL",
-        value: lookahead.value
-      };
-      match("ID");
-    } else if (lookahead && lookahead.type === "BEGIN") {
-      match("BEGIN");
-      left = statements();
-      match("END");
-      result = {
-        type: "BEGIN",
-        left: left,
-        right: right
-      };
-    } else if (lookahead && lookahead.type === "IF") {
-      match("IF");
-      left = condition();
-      match("THEN");
-      right = statement();
-      result = {
-        type: "IF",
-        left: left,
-        right: right
-      };
-    } else if (lookahead && lookahead.type === "WHILE") {
-      match("WHILE");
-      left = condition();
-      match("DO");
-      right = statement();
-      result = {
-        type: "WHILE",
-        left: left,
-        right: right
-      };
-    } else {
-      throw "Syntax Error. Expected identifier but found " + (lookahead ? lookahead.value : "end of input") + (" near '" + (input.substr(lookahead.from)) + "'");
+    if (lookahead) {
+      switch (lookahead.type) {
+        case "ID":
+          left = {
+            type: "ID",
+            value: lookahead.value
+          };
+          match("ID");
+          match("=");
+          right = expression();
+          result = {
+            type: "=",
+            left: left,
+            right: right
+          };
+          break;
+        case "P":
+          match("P");
+          right = expression();
+          result = {
+            type: "P",
+            value: right
+          };
+          break;
+        case "CALL":
+          match("CALL");
+          result = {
+            type: "CALL",
+            value: lookahead.value
+          };
+          match("ID");
+          break;
+        case "BEGIN":
+          match("BEGIN");
+          left = statements();
+          match("END");
+          result = {
+            type: "BEGIN",
+            left: left,
+            right: right
+          };
+          break;
+        case "IF":
+          match("IF");
+          left = condition();
+          match("THEN");
+          right = statement();
+          result = {
+            type: "IF",
+            left: left,
+            right: right
+          };
+          break;
+        case "WHILE":
+          match("WHILE");
+          left = condition();
+          match("DO");
+          right = statement();
+          result = {
+            type: "WHILE",
+            left: left,
+            right: right
+          };
+          break;
+        default:
+          throw "Syntax Error. Expected identifier but found " + (lookahead ? lookahead.value : "end of input") + (" near '" + (input.substr(lookahead.from)) + "'");
+      }
     }
     return result;
   };
@@ -302,29 +344,33 @@ parse = function(input) {
   factor = function() {
     var result;
     result = null;
-    if (lookahead.type === "NUM") {
-      result = {
-        type: "NUM",
-        value: lookahead.value
-      };
-      match("NUM");
-    } else if (lookahead.type === "ID") {
-      result = {
-        type: "ID",
-        value: lookahead.value
-      };
-      match("ID");
-    } else if (lookahead.type === "(") {
-      match("(");
-      result = expression();
-      match(")");
-    } else {
-      throw "Syntax Error. Expected number or identifier or '(' but found " + (lookahead ? lookahead.value : "end of input") + " near '" + input.substr(lookahead.from) + "'";
+    switch (lookahead.type) {
+      case "NUM":
+        result = {
+          type: "NUM",
+          value: lookahead.value
+        };
+        match("NUM");
+        break;
+      case "ID":
+        result = {
+          type: "ID",
+          value: lookahead.value
+        };
+        match("ID");
+        break;
+      case "(":
+        match("(");
+        result = expression();
+        match(")");
+        break;
+      default:
+        throw "Syntax Error. Expected number or identifier or '(' but found " + (lookahead ? lookahead.value : "end of input") + " near '" + input.substr(lookahead.from) + "'";
     }
     return result;
   };
   tree = statements(input);
-  if (lookahead != null) {
+  if (lookahead !== null) {
     throw "Syntax Error parsing statements. " + "Expected 'end of input' and found '" + input.substr(lookahead.from) + "'";
   }
   return tree;
