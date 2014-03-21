@@ -1,6 +1,6 @@
 var assert = chai.assert;
 
-var original.value = null;
+var original = null;
 
 suite('Tokens', function() {
     test('Asignacion y Suma: ', function() {
