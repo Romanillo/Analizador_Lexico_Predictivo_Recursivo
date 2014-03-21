@@ -32,8 +32,8 @@ String::tokens = ->
   ID = /[a-zA-Z_]\w*/g
   NUM = /\b\d+(\.\d*)?([eE][+-]?\d+)?\b/g
   STRING = /('(\\.|[^'])*'|"(\\.|[^"])*")/g
-  ADDSUBOP: /[+-]/g
-  MULTDIVOP: /[*\/]/g
+  ADDSUBOP= /[+-]/g
+  MULTDIVOP= /[*\/]/g
   ONELINECOMMENT = /\/\/.*/g
   COMPARISON = /[<>=!]=|[<>]/g
   MULTIPLELINECOMMENT = /\/[*](.|\n)*?[*]\//g
