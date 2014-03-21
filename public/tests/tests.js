@@ -3,24 +3,151 @@ var assert = chai.assert;
 suite('Tokens', function() {
     test('Asignacion y Suma: ', function() {
 		 original.value =  "d = 4 + 6";
-		 var esperado = '[\n  {\n    "type": "=",\n    "left": {\n      "type": "ID",\n      "value": "d"\n    },\n    "right": {\n      "type": "+",\n      "left": {\n        "type": "NUM",\n        "value": 4\n      },\n      "right": {\n        "type": "NUM",\n        "value": 6\n      }\n    }\n  }\n]';
+		 var esperado = '[
+  {
+    "type": "=",
+    "left": {
+      "type": "ID",
+      "value": "d"
+    },
+    "right": {
+      "type": "+",
+      "left": {
+        "type": "NUM",
+        "value": 4
+      },
+      "right": {
+        "type": "NUM",
+        "value": 6
+      }
+    }
+  }
+]';
 		 main ();
        assert.deepEqual(OUTPUT.innerHTML, esperado);
     });
 	 test('Asignacion y Producto: ', function() {
 		 original.value =  "d = 4*4;";
-		 var esperado = '[\n  {\n    "type": "=",\n    "left": {\n      "type": "ID",\n      "value": "d"\n    },\n    "right": {\n      "type": "*",\n      "left": {\n        "type": "NUM",\n        "value": 4\n      },\n      "right": {\n        "type": "NUM",\n        "value": 4\n      }\n    }\n  }\n]';		 
+		 var esperado = '[
+  [
+    {
+      "type": "=",
+      "left": {
+        "type": "ID",
+        "value": "d"
+      },
+      "right": {
+        "type": "*",
+        "left": {
+          "type": "NUM",
+          "value": 4
+        },
+        "right": {
+          "type": "NUM",
+          "value": 4
+        }
+      }
+    }
+  ],
+  null
+]';		 
 		 main ();
        assert.deepEqual(OUTPUT.innerHTML, esperado);
     });
 	 test('Condicion: ', function() {
-		 original.value =  "d = 16; if d < 20 then d + 2";
-		 var esperado = '[\n  [\n    {\n      "type": "=",\n      "left": {\n        "type": "ID",\n        "value": "d"\n      },\n      "right": {\n        "type": "NUM",\n        "value": 16\n          }\n    }\n  ],\n  {\n    "type": "IF",\n    "left": {\n      "type": "&lt;",\n      "left": {\n        "type": "ID",\n        "value": "d"\n      },\n      "right": {\n        "type": "NUM",\n        "value": 20\n      }\n    },\n    "right": {\n      "type": "+",\n      "left": {\n        "type": "NUM",\n        "value": 4\n      },\n      "right": {\n        "type": "NUM",\n        "value": 6\n      }\n    }\n  }\n]';
+		 original.value =  "e = 6; if e < 10 then p e";
+		 var esperado = '[
+  [
+    {
+      "type": "=",
+      "left": {
+        "type": "ID",
+        "value": "e"
+      },
+      "right": {
+        "type": "NUM",
+        "value": 6
+      }
+    }
+  ],
+  [
+    {
+      "type": "IF",
+      "left": {
+        "type": "<",
+        "left": {
+          "type": "ID",
+          "value": "e"
+        },
+        "right": {
+          "type": "NUM",
+          "value": 10
+        }
+      },
+      "right": {
+        "type": "P",
+        "value": {
+          "type": "ID",
+          "value": "e"
+        }
+      }
+    }
+  ]
+]';
        assert.deepEqual(OUTPUT.innerHTML, esperado);
     });
 	 test('Bucle while: ', function() {
-		 original.value =  "while d < 20 do d + 1";
-		 var esperado = '[\n  {\n    "type": "WHILE",\n    "left": {\n      "type": "&lt;",\n      "left": {\n        "type": "ID",\n        "value": "d"\n      },\n      "right": {\n        "type": "NUM",\n        "value": 20\n      }\n    },\n    "right": {\n      "type": "+",\n      "left": {\n        "type": "ID",\n        "value": "d"\n      },\n      "right": {\n        "type": "NUM",\n        "value": 1\n      }\n    }\n  }\n]';
+		 original.value =  "while n < 18 do begin n = n + 1; p b end";
+		 var esperado = '[
+  {
+    "type": "WHILE",
+    "left": {
+      "type": "<",
+      "left": {
+        "type": "ID",
+        "value": "n"
+      },
+      "right": {
+        "type": "NUM",
+        "value": 18
+      }
+    },
+    "right": {
+      "type": "BEGIN",
+      "left": [
+        [
+          {
+            "type": "=",
+            "left": {
+              "type": "ID",
+              "value": "n"
+            },
+            "right": {
+              "type": "+",
+              "left": {
+                "type": "ID",
+                "value": "n"
+              },
+              "right": {
+                "type": "NUM",
+                "value": 1
+              }
+            }
+          }
+        ],
+        [
+          {
+            "type": "P",
+            "value": {
+              "type": "ID",
+              "value": "b"
+            }
+          }
+        ]
+      ]
+    }
+  }
+]';
 		 main ();
        assert.deepEqual(OUTPUT.innerHTML, esperado);
 	});
