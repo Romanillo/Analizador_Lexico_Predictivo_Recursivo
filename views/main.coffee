@@ -28,17 +28,28 @@ String::tokens = ->
   n = undefined # The number value.
   m = undefined # Matching
   result = [] # An array to hold the results.
-  tokens =
-    WHITES: /\s+/g
-    ID: /[a-zA-Z_]\w*/g
-    NUM: /\b\d+(\.\d*)?([eE][+-]?\d+)?\b/g
-    STRING: /('(\\.|[^'])*'|"(\\.|[^"])*")/g
-    ONELINECOMMENT: /\/\/.*/g
-    MULTIPLELINECOMMENT: /\/[*](.|\n)*?[*]\//g
-    COMPARISONOPERATOR: /[<>=!]=|[<>]/g
-    ONECHAROPERATORS: /([-+*\/=()&|;:,{}[\]])/g
-    ADDOP: /([+-])/g
-    MULTOP: /[*\/]/g
+  WHITES = /\s+/g
+  ID = /[a-zA-Z_]\w*/g
+  NUM = /\b\d+(\.\d*)?([eE][+-]?\d+)?\b/g
+  STRING = /('(\\.|[^'])*'|"(\\.|[^"])*")/g
+  ADDSUBOP: /[+-]/g
+  MULTDIVOP: /[*\/]/g
+  ONELINECOMMENT = /\/\/.*/g
+  COMPARISON = /[<>=!]=|[<>]/g
+  MULTIPLELINECOMMENT = /\/[*](.|\n)*?[*]\//g
+  ONECHAROPERATORS = /([=()&|;:,<>\.{}[\]])/g
+  tokens = [
+    COMPARISON
+    ADDSUBOP
+    MULTDIVOP
+    WHITES
+    ID
+    NUM
+    STRING
+    ONELINECOMMENT
+    MULTIPLELINECOMMENT
+    ONECHAROPERATORS
+  ]
 
   RESERVED_WORD =
     p: "P"
@@ -78,13 +89,13 @@ String::tokens = ->
     from = i
     
     # Ignore whitespace and comments
-    if m = tokens.WHITES.bexec(this) or
-           (m = tokens.ONELINECOMMENT.bexec(this)) or
-           (m = tokens.MULTIPLELINECOMMENT.bexec(this))
+    if m = WHITES.bexec(this) or
+           (m = ONELINECOMMENT.bexec(this)) or
+           (m = MULTIPLELINECOMMENT.bexec(this))
       getTok()
     
     # name.
-    else if m = tokens.ID.bexec(this)
+    else if m = ID.bexec(this)
       rw = RESERVED_WORD[m[0]]
       if rw
         result.push make(rw, getTok())
@@ -92,7 +103,7 @@ String::tokens = ->
         result.push make("ID", getTok())
     
     # number.
-    else if m = tokens.NUM.bexec(this)
+    else if m = NUM.bexec(this)
       n = +getTok()
       if isFinite(n)
         result.push make("NUM", n)
@@ -100,23 +111,23 @@ String::tokens = ->
         make("NUM", m[0]).error "Bad number"
     
     # string
-    else if m = tokens.STRING.bexec(this)
+    else if m = STRING.bexec(this)
       result.push make("STRING", getTok().replace(/^["']|["']$/g, ""))
     
     # comparison operator
-    else if m = tokens.COMPARISONOPERATOR.bexec(this)
+    else if m = COMPARISONOPERATOR.bexec(this)
       result.push make("COMPARISON", getTok())
       
     # ADDOP operator
-    else if m = tokens.ADDOP.bexec(this)
+    else if m = ADDOP.bexec(this)
       result.push make("ADDOP", getTok())
 
     # MULTOP operator
-    else if m = tokens.MULTOP.bexec(this)
+    else if m = MULTOP.bexec(this)
       result.push make("MULTOP", getTok())
       
     # single-character operator
-    else if m = tokens.ONECHAROPERATORS.bexec(this)
+    else if m = ONECHAROPERATORS.bexec(this)
       result.push make(m[0], getTok())
     else
       throw "Syntax error near '#{@substr(i)}'"
@@ -276,7 +287,6 @@ parse = (input) ->
             " near '#{input.substr(lookahead.from)}'"
     result
 
-  #CONDITION--------------------------------------------------------------
   condition = ->
     left = expression()
     type = lookahead.value
@@ -288,7 +298,6 @@ parse = (input) ->
       right: right
     result
 
-  #EXPRESSION-------------------------------------------------------------
   expression = ->
     result = term()
     while lookahead and lookahead.type is "ADDOP"
@@ -301,7 +310,6 @@ parse = (input) ->
         right: right
     result
 
-  #TERM-----------------------------------------------------------------
   term = ->
     result = factor()
     while lookahead and lookahead.type is "MULTOP"
@@ -314,7 +322,6 @@ parse = (input) ->
         right: right
     result
 
-  #FACTOR---------------------------------------------------------------
   factor = ->
     result = null
     switch lookahead.type
@@ -342,7 +349,6 @@ parse = (input) ->
           " near '" + input.substr(lookahead.from) + "'"
     result
 
-  #END------------------------------------------------------------------
   tree = statements(input)
   if lookahead?
     throw "Syntax Error parsing statements. " +
