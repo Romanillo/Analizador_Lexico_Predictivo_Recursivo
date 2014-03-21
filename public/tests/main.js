@@ -2,14 +2,14 @@ var main, parse;
 
 main = function() {
   var result, source;
-  source =  cadena;
+  source = original.value;
   try {
     result = JSON.stringify(parse(source), null, 2);
   } catch (_error) {
     result = _error;
     result = "<div class=\"error\">" + result + "</div>";
   }
-  return result;
+  return OUTPUT.innerHTML = result;
 };
 
 window.onload = function() {
