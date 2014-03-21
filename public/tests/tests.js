@@ -3,26 +3,7 @@ var assert = chai.assert;
 suite('Tokens', function() {
     test('Asignacion y Suma: ', function() {
 		 original.value =  "d = 4 + 6";
-		 var esperado = '[
-  {
-    "type": "=",
-    "left": {
-      "type": "ID",
-      "value": "d"
-    },
-    "right": {
-      "type": "+",
-      "left": {
-        "type": "NUM",
-        "value": 4
-      },
-      "right": {
-        "type": "NUM",
-        "value": 6
-      }
-    }
-  }
-]';
+		 var esperado = '[{"type": "=","left": {"type": "ID","value": "d"},"right": {"type": "+","left": {"type": "NUM","value": 4},"right": {"type": "NUM","value": 6}}}]';
 		 main ();
        assert.deepEqual(OUTPUT.innerHTML, esperado);
     });
