@@ -1,4 +1,4 @@
-var main, parse,OUTPUT;
+var main, parse;
 
 main = function() {
   var result, source;
@@ -9,7 +9,7 @@ main = function() {
     result = _error;
     result = "<div class=\"error\">" + result + "</div>";
   }
-  return OUTPUT.innerHTML = result;
+  return result;
 };
 
 window.onload = function() {
