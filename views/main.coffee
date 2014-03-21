@@ -115,16 +115,16 @@ String::tokens = ->
       result.push make("STRING", getTok().replace(/^["']|["']$/g, ""))
     
     # comparison operator
-    else if m = COMPARISONOPERATOR.bexec(this)
+    else if m = COMPARISON.bexec(this)
       result.push make("COMPARISON", getTok())
       
-    # ADDOP operator
-    else if m = ADDOP.bexec(this)
-      result.push make("ADDOP", getTok())
+    # ADDSUBOP operator
+    else if m = ADDSUBOP.bexec(this)
+      result.push make("ADDSUBOP", getTok())
 
-    # MULTOP operator
-    else if m = MULTOP.bexec(this)
-      result.push make("MULTOP", getTok())
+    # MULTDIVOP operator
+    else if m = MULTDIVOP.bexec(this)
+      result.push make("MULTDIVOP", getTok())
       
     # single-character operator
     else if m = ONECHAROPERATORS.bexec(this)
@@ -300,9 +300,9 @@ parse = (input) ->
 
   expression = ->
     result = term()
-    while lookahead and lookahead.type is "ADDOP"
+    while lookahead and lookahead.type is "ADDSUBOP"
       type = lookahead.value
-      match "ADDOP"
+      match "ADDSUBOP"
       right = term()
       result =
         type: type
@@ -312,9 +312,9 @@ parse = (input) ->
 
   term = ->
     result = factor()
-    while lookahead and lookahead.type is "MULTOP"
+    while lookahead and lookahead.type is "MULTDIVOP"
       type = lookahead.value
-      match "MULTOP"
+      match "MULTDIVOP"
       right = factor()
       result =
         type: type
