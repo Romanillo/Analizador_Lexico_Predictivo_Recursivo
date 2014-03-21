@@ -2,7 +2,7 @@ var main, parse;
 
 main = function() {
   var result, source;
-  source = original.value;
+  source =  cadena;
   try {
     result = JSON.stringify(parse(source), null, 2);
   } catch (_error) {
